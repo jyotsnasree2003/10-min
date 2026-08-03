@@ -1,0 +1,310 @@
+services:
+
+  # ================= AUTH =================
+
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./auth_service
+    container_name: auth-service
+
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
+    env_file:
+      - ./auth_service/.env
+
+    ports:
+      - "8000:8000"
+
+  # ================= REDIS =================
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+
+    ports:
+      - "6379:6379"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ================= NOTIFICATION =================
+
+  notification-service:
+    build:
+      context: ./notification_service
+
+    container_name: notification-service
+
+    env_file:
+      - ./notification_service/.env
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    ports:
+      - "8008:8008"
+
+  # ================= PRODUCT DB =================
+
+  product-db:
+    image: postgres:16
+    container_name: product-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ================= PRODUCT SERVICE =================
+
+  product-service:
+    build:
+      context: ./product_services
+
+    container_name: product-service
+
+    depends_on:
+      product-db:
+        condition: service_healthy
+
+    env_file:
+      - ./product_services/.env
+
+    ports:
+      - "8002:8002"
+# ================= LOCATION SERVICE =================
+
+  location-service:
+    build:
+      context: ./location_service
+      dockerfile: app/Dockerfile
+    container_name: location-service
+    depends_on:
+      location-db:
+        condition: service_healthy
+    env_file:
+      - ./location_service/.env
+
+    ports:
+      - "8003:8003"
+
+  location-db:
+    image: postgres:16
+    container_name: location-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: location_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - location_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d location_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+# ================= WAREHOUSE SERVICE =================
+
+  warehouse-service:
+    build:
+      context: ./warehouse_service
+      
+    container_name: warehouse-service
+    depends_on:
+      warehouse-db:
+        condition: service_healthy
+    env_file:
+      - ./warehouse_service/.env
+
+    ports:
+      - "8004:8004"
+
+  warehouse-db:
+    image: postgres:16
+    container_name: warehouse-db
+    
+    restart: always
+
+    environment:
+      POSTGRES_DB: warehouse_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - warehouse_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warehouse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+# ================= INVENTORY SERVICE =================
+
+  inventory-service:
+    build:
+      context: ./inventory_services
+
+    container_name: inventory-service
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+    env_file:
+      - ./inventory_services/.env
+
+    ports:
+      - "8005:8005"
+
+  inventory-db:
+    image: postgres:16
+    container_name: inventory-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5436:5432"
+
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+# ================= CART SERVICE =================
+
+  cart-service:
+    build:
+      context: ./cart_service
+
+    container_name: cart-service
+    depends_on:
+      cart-db:
+        condition: service_healthy
+    env_file:
+      - ./cart_service/.env
+
+    ports:
+      - "8006:8006"
+
+  cart-db:
+    image: postgres:16
+    container_name: cart-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: cart_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5437:5432"
+
+    volumes:
+      - cart_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cart_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+# ================= ORDER SERVICE =================
+
+  order-service:
+    build:
+      context: ./order_service
+      dockerfile: app/Dockerfile
+    container_name: order-service
+    depends_on:
+      order-db:
+        condition: service_healthy
+    env_file:
+      - ./order_service/.env
+
+    ports:
+      - "8007:8007"
+
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    restart: always
+
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+
+    ports:
+      - "5438:5432"
+
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  auth_db_data:
+  product_db_data:
+  location_db_data:
+  warehouse_db_data:
+  inventory_db_data:
+  cart_db_data:
+  order_db_data:

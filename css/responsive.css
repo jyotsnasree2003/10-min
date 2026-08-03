@@ -1,0 +1,134 @@
+/* Responsive Styles & Mobile Navigation */
+
+/* Mobile Bottom Navigation Bar */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  background: var(--white);
+  border-top: 1px solid var(--border-color);
+  z-index: 8000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--medium-gray);
+}
+
+.mobile-nav-item.active {
+  color: var(--primary);
+}
+
+.mobile-nav-icon {
+  font-size: 1.25rem;
+}
+
+/* Floating Cart Pill on Mobile */
+.mobile-cart-float-bar {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  left: 1rem;
+  right: 1rem;
+  background: var(--primary);
+  color: var(--white);
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius-md);
+  z-index: 7900;
+  box-shadow: var(--shadow-lg);
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 800;
+}
+
+/* Media Queries */
+
+@media (max-width: 1024px) {
+  .product-detail-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .checkout-grid, .cart-view-grid, .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .search-wrapper {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-banner-slide {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  .mobile-cart-float-bar.active {
+    display: flex;
+  }
+
+  .main-content {
+    padding-bottom: 6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .product-card {
+    padding: 0.75rem;
+  }
+
+  .product-image-wrapper {
+    height: 110px;
+  }
+
+  .hero-banner-img {
+    width: 140px;
+  }
+}

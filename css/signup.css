@@ -1,0 +1,16 @@
+/* Signup Specific Styles */
+.password-requirements {
+  font-size: 0.8rem;
+  color: var(--medium-gray);
+  margin-top: 4px;
+}
+
+.password-requirements span.match {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.password-requirements span.mismatch {
+  color: var(--status-cancelled);
+  font-weight: 700;
+}

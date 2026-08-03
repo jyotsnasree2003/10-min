@@ -1,0 +1,78 @@
+/* Profile View Styles */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+.profile-sidebar-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avatar-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%);
+  color: var(--white);
+  font-weight: 900;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  box-shadow: var(--shadow-glow);
+}
+
+.profile-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 2px;
+}
+
+.profile-email {
+  font-size: 0.88rem;
+  color: var(--medium-gray);
+  margin-bottom: 1.5rem;
+}
+
+.profile-nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.profile-nav-btn {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--dark-gray);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.profile-nav-btn:hover, .profile-nav-btn.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.profile-content-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}

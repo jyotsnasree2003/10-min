@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="QuickO - Superfast 10-minute grocery and essential quick commerce delivery." />
+  <title>QuickO - 10 Minute Grocery Delivery</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- OpenStreetMap Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/product.css" />
+  <link rel="stylesheet" href="css/cart.css" />
+  <link rel="stylesheet" href="css/checkout.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/signup.css" />
+  <link rel="stylesheet" href="css/location.css" />
+  <link rel="stylesheet" href="css/orders.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <!-- Sticky Navbar Header -->
+  <header class="navbar-header" id="navbar-header">
+    <div class="navbar-container">
+      
+      <!-- Brand Logo (No space between Quick and O) -->
+      <a href="#home" class="logo-brand">
+        Quick<span class="highlight">O</span>
+        <span class="logo-badge">⚡ 10 Mins</span>
+      </a>
+
+      <!-- Location Selector Pill -->
+      <div class="location-pill" id="nav-location-pill" onclick="window.location.hash='#location'">
+        <div class="location-title">
+          <span class="lightning">⚡</span> Delivery in 10 Mins
+        </div>
+        <div class="location-address" id="nav-address-text">
+          Select Delivery Location
+        </div>
+      </div>
+
+      <!-- Live Search Box -->
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search for milk, chips, apples, tomatoes..." />
+        <button class="search-clear-btn" id="search-clear-btn">✕</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="navbar-actions">
+        <!-- Admin link hidden by default, shown ONLY when logged in user role is Admin -->
+        <a href="#admin" id="admin-nav-link" class="nav-link-item" style="color: var(--primary); font-weight: 800; display: none;">⚙️ Admin</a>
+
+        <div class="user-profile-btn" id="user-profile-btn">
+          👤 <span>Login</span>
+        </div>
+
+        <button class="cart-nav-btn" id="cart-nav-btn" onclick="CartManager.openDrawer()">
+          🛒 <span>Cart</span>
+          <span class="cart-badge-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Sub-navigation -->
+    <nav class="cat-subnav">
+      <div class="cat-subnav-container" id="cat-subnav-container">
+        <!-- Dynamic Category Pills -->
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+
+    <!-- 1. HOME VIEW -->
+    <section id="view-home" class="view-section active">
+      
+      <!-- Hero Banner -->
+      <div class="hero-slider-container">
+        <div class="hero-banner-slide">
+          <div class="hero-content">
+            <span class="hero-tag">Superfast Delivery</span>
+            <h1 class="hero-title">Groceries Delivered in 10 Minutes ⚡</h1>
+            <p class="hero-subtitle">Fresh vegetables, dairy, snacks, & everyday essentials right at your doorstep.</p>
+            <button class="btn btn-primary" onclick="window.location.hash='#home'">Shop Now →</button>
+          </div>
+          <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80" class="hero-banner-img" alt="Fresh Groceries" />
+        </div>
+      </div>
+
+      <!-- Filtered Products View (Shown when searching/filtering) -->
+      <div id="filtered-section" style="display: none;">
+        <div class="section-header">
+          <h2 class="section-title">🔍 Search & Filter Results</h2>
+        </div>
+        <div class="product-grid" id="filtered-products-grid"></div>
+      </div>
+
+      <!-- Default Home Sections -->
+      <div id="default-home-sections">
+
+        <!-- Featured Categories Grid -->
+        <div class="section-header">
+          <h2 class="section-title">Shop by Category</h2>
+        </div>
+        <div class="category-grid" id="category-grid-container"></div>
+
+        <!-- Brand Filter Chips -->
+        <div class="section-header">
+          <h2 class="section-title">Top Brands</h2>
+        </div>
+        <div class="brand-chips-row" id="brand-chips-container"></div>
+
+        <!-- Today's Deals -->
+        <div class="promo-strip">
+          <div>
+            <div class="promo-title">🔥 Today's Mega Quick Deals</div>
+            <div class="promo-desc">Up to 30% OFF on fresh dairy, juices & household items</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="HomeManager.filterByCategory('all')">View All</button>
+        </div>
+
+        <div class="product-grid" id="deals-products-grid"></div>
+
+        <!-- Popular Products -->
+        <div class="section-header">
+          <h2 class="section-title">⚡ Popular 10-Min Delivery Items</h2>
+        </div>
+        <div class="product-grid" id="popular-products-grid"></div>
+
+      </div>
+
+    </section>
+
+    <!-- 2. PRODUCT DETAILS VIEW -->
+    <section id="view-product-detail" class="view-section">
+      <div id="product-detail-view"></div>
+    </section>
+
+    <!-- 3. LOGIN VIEW -->
+    <section id="view-login" class="view-section">
+      <div class="auth-container">
+        <div class="auth-header">
+          <div class="auth-logo">Quick<span style="color: #ff3269;">O</span></div>
+          <h2 class="auth-title">Welcome Back</h2>
+          <p class="auth-subtitle">Login to access your cart and place 10-minute orders</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">✉️</span>
+              <input type="email" id="login-email" placeholder="customer@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">🔒</span>
+              <input type="password" id="login-password" placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <div class="form-footer-flex">
+            <label><input type="checkbox" checked /> Remember me</label>
+            <a href="#" class="forgot-password-link" onclick="Utils.showToast('Password reset link sent to email', 'info')">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <div class="auth-switch-text">
+          Don't have an account? <a href="#signup">Create Account</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SIGNUP VIEW -->
+    <section id="view-signup" class="view-section">
+      <div class="auth-container">
+        <div class="auth-header">
+          <div class="auth-logo">Quick<span style="color: #ff3269;">O</span></div>
+          <h2 class="auth-title">Create New Account</h2>
+          <p class="auth-subtitle">Sign up for instant 10-minute grocery delivery</p>
+        </div>
+
+        <form id="signup-form">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">👤</span>
+              <input type="text" id="signup-name" placeholder="John Doe" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">✉️</span>
+              <input type="email" id="signup-email" placeholder="customer@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">🔒</span>
+              <input type="password" id="signup-password" placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="form-control-wrapper">
+              <span class="form-control-icon">🔒</span>
+              <input type="password" id="signup-confirm-password" placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Sign Up & Send OTP</button>
+        </form>
+
+        <div class="auth-switch-text">
+          Already have an account? <a href="#login">Login</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. LOCATION SELECTOR VIEW (Interactive Map & Address Geocoding Search) -->
+    <section id="view-location" class="view-section">
+      <div class="location-container">
+        <h2 class="location-header-title">📍 Select Delivery Location</h2>
+        <p class="location-subtitle">Pin your location on the map or search a landmark to connect with your darkstore.</p>
+
+        <button class="detect-location-btn" id="btn-detect-location">
+          📍 Detect Current Location (Browser Geolocation API)
+        </button>
+
+        <div class="form-group" style="position: relative; margin-bottom: 1.25rem;">
+          <label class="form-label">Search Landmark, City or Address</label>
+          <input type="text" id="location-search-input" class="form-control" style="width: 100%;" placeholder="Type area or landmark (e.g. Bandra, Connaught Place...)" />
+          <ul id="location-suggestions" class="location-suggestions-list"></ul>
+        </div>
+
+        <div class="map-wrapper">
+          <div class="map-instruction-tag">💡 Click map or drag pin to select delivery point</div>
+          <div id="location-map"></div>
+        </div>
+
+        <div id="location-warehouse-status"></div>
+      </div>
+    </section>
+
+    <!-- 6. DEDICATED CART VIEW -->
+    <section id="view-cart" class="view-section">
+      <div id="cart-view-container"></div>
+    </section>
+
+    <!-- 7. CHECKOUT VIEW -->
+    <section id="view-checkout" class="view-section">
+      <div id="checkout-view-container"></div>
+    </section>
+
+    <!-- 8. ORDER SUCCESS VIEW -->
+    <section id="view-order-success" class="view-section">
+      <div id="order-success-view-container"></div>
+    </section>
+
+    <!-- 9. MY ORDERS VIEW -->
+    <section id="view-orders" class="view-section">
+      <div id="orders-view-container"></div>
+    </section>
+
+    <!-- 10. PROFILE VIEW -->
+    <section id="view-profile" class="view-section">
+      <div id="profile-view-container"></div>
+    </section>
+
+    <!-- 11. ADMIN PANEL VIEW (Guarded by RBAC Role Check) -->
+    <section id="view-admin" class="view-section">
+      <div id="admin-view-container"></div>
+    </section>
+
+  </main>
+
+  <!-- Slide-over Cart Drawer -->
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop">
+    <div class="cart-drawer">
+      <div class="cart-header">
+        <div class="cart-header-title">
+          🛒 My Cart <span class="count-pill cart-badge-count">0</span>
+        </div>
+        <button class="cart-close-btn" onclick="CartManager.closeDrawer()">✕</button>
+      </div>
+
+      <div class="cart-body" id="cart-drawer-body">
+        <!-- Dynamic Cart Items -->
+      </div>
+
+      <div class="cart-footer" id="cart-drawer-footer">
+        <!-- Dynamic Cart Total & Checkout Button -->
+      </div>
+    </div>
+  </div>
+
+  <!-- OTP Verification Modal Dialog (Notification Service) -->
+  <div class="modal-backdrop" id="otp-modal">
+    <div class="modal-card" style="max-width: 400px; text-align: center;">
+      <span class="modal-close" onclick="document.getElementById('otp-modal').classList.remove('active')">&times;</span>
+      
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">📩</div>
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Verify Email OTP</h3>
+      <p style="font-size: 0.88rem; color: var(--medium-gray); margin-bottom: 1.5rem;">
+        An OTP has been sent by Notification Service to <strong id="otp-sent-email">user@example.com</strong>. Valid for 60s.
+      </p>
+
+      <form id="otp-verification-form">
+        <div class="form-group">
+          <input type="text" id="otp-input-field" maxlength="6" style="font-size: 1.8rem; letter-spacing: 8px; text-align: center; font-weight: 800;" placeholder="123456" required />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; font-size: 0.85rem;">
+          <span style="color: var(--medium-gray);">Expires in: <strong id="otp-timer-counter" style="color: var(--primary);">60s</strong></span>
+          <button type="button" class="btn btn-outline btn-sm" id="resend-otp-btn" onclick="Auth.resendOtp()">Resend OTP</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem;">Verify & Register Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Tracker & General Modal Dialog -->
+  <div class="modal-backdrop" id="order-detail-modal">
+    <div class="modal-card">
+      <span class="modal-close">&times;</span>
+      <div id="order-detail-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Mobile Floating Cart Pill -->
+  <div class="mobile-cart-float-bar" id="mobile-cart-float-bar"></div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <div class="mobile-nav-container">
+      <a href="#home" class="mobile-nav-item active">
+        <span class="mobile-nav-icon">🏠</span>
+        <span>Home</span>
+      </a>
+      <a href="#location" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📍</span>
+        <span>Location</span>
+      </a>
+      <a href="#cart" class="mobile-nav-item">
+        <span class="mobile-nav-icon">🛒</span>
+        <span>Cart</span>
+      </a>
+      <a href="#orders" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📦</span>
+        <span>Orders</span>
+      </a>
+      <a href="#admin" id="admin-mobile-link" class="mobile-nav-item" style="display: none;">
+        <span class="mobile-nav-icon">⚙️</span>
+        <span>Admin</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-col">
+        <h4 style="color: var(--primary); font-size: 1.5rem; font-weight: 900;">QuickO</h4>
+        <p style="margin-top: 0.5rem; font-size: 0.88rem;">India's fastest 10-minute grocery delivery app. Fresh fruits, vegetables, dairy & snacks delivered straight to your door.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Useful Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#location">Delivery Locations</a></li>
+          <li><a href="#orders">My Orders</a></li>
+        </ul>
+      </div>
+    </div>
+      
+    <div class="footer-bottom">
+      <div>© 2026 QuickO Commerce Inc. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification System Container -->
+  <div id="toast-container"></div>
+
+  <!-- OpenStreetMap Leaflet JS Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- JavaScript Modules in Execution Dependency Order -->
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/location.js"></script>
+  <script src="js/product.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/checkout.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

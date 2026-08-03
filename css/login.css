@@ -1,0 +1,97 @@
+/* Auth (Login & Signup) View Styles */
+
+.auth-container {
+  max-width: 440px;
+  margin: 3rem auto;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.auth-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: var(--medium-gray);
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--dark-gray);
+  margin-bottom: 6px;
+}
+
+.form-control-wrapper {
+  position: relative;
+}
+
+.form-control-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--medium-gray);
+}
+
+.form-control-wrapper input {
+  padding-left: 2.75rem;
+  width: 100%;
+}
+
+.form-footer-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+}
+
+.forgot-password-link {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+.auth-switch-text {
+  text-align: center;
+  margin-top: 1.75rem;
+  font-size: 0.92rem;
+  color: var(--medium-gray);
+}
+
+.auth-switch-text a {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.auth-switch-text a:hover {
+  text-decoration: underline;
+}
