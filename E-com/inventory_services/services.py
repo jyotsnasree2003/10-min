@@ -8,17 +8,17 @@ load_dotenv()
 
 PRODUCT_SERVICE_URL = os.getenv(
     "PRODUCT_SERVICE_URL",
-    "http://localhost:8002"
+    "http://product-service:8002"
 )
 
 WAREHOUSE_SERVICE_URL = os.getenv(
     "WAREHOUSE_SERVICE_URL",
-    "http://localhost:8004"
+    "http://warehouse-service:8004"
 )
 
 AUTH_SERVICE_URL = os.getenv(
     "AUTH_SERVICE_URL",
-    "http://localhost:8000"
+    "http://auth-service:8000"
 )
 
 

@@ -13,6 +13,16 @@ const API_CONFIG = {
 };
 
 let isRefreshing = false;
+let refreshSubscribers = [];
+
+function subscribeTokenRefresh(cb) {
+  refreshSubscribers.push(cb);
+}
+
+function onRefreshed(token) {
+  refreshSubscribers.forEach(cb => cb(token));
+  refreshSubscribers = [];
+}
 
 async function request(url, options = {}, isRetry = false) {
   const token = Utils.storage.get('jwt_token');
@@ -31,23 +41,37 @@ async function request(url, options = {}, isRetry = false) {
     if (response.status === 401 && !isRetry && !url.includes('/login') && !url.includes('/refresh')) {
       const refreshToken = Utils.storage.get('refresh_token');
 
-      if (refreshToken && !isRefreshing) {
-        isRefreshing = true;
-        try {
-          const newAccessToken = await API.refreshToken(refreshToken);
-          if (newAccessToken) {
-            Utils.storage.set('jwt_token', newAccessToken);
-            isRefreshing = false;
-            return await request(url, options, true);
-          }
-        } catch (refreshErr) {
-          isRefreshing = false;
-          Auth.logout();
-          throw new Error('Session expired. Please login again.');
-        }
-      } else {
+      if (!refreshToken) {
         Auth.logout();
         throw new Error('Unauthorized. Please login.');
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((newToken) => {
+            options.headers = {
+              ...(options.headers || {}),
+              'Authorization': `Bearer ${newToken}`
+            };
+            resolve(request(url, options, true));
+          });
+        });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const newAccessToken = await API.refreshToken(refreshToken);
+        if (newAccessToken) {
+          Utils.storage.set('jwt_token', newAccessToken);
+          isRefreshing = false;
+          onRefreshed(newAccessToken);
+          return await request(url, options, true);
+        }
+      } catch (refreshErr) {
+        isRefreshing = false;
+        Auth.logout();
+        throw new Error('Session expired. Please login again.');
       }
     }
 
@@ -161,6 +185,13 @@ const API = {
 
   async getWarehouseByManager(manager_id) {
     return await request(`${API_CONFIG.WAREHOUSE_SERVICE}/warehouses/manager/${manager_id}`, { method: 'GET' });
+  },
+
+  async adminCreateWarehouse(warehouseData) {
+    return await request(`${API_CONFIG.WAREHOUSE_SERVICE}/warehouses/`, {
+      method: 'POST',
+      body: JSON.stringify(warehouseData)
+    });
   },
 
   // 5. INVENTORY SERVICE (:8005) - Complete Inventory Management

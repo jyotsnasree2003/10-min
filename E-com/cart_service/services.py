@@ -1,8 +1,9 @@
 import asyncio
 import httpx
+import os
 
-PRODUCT_SERVICE = "http://localhost:8002/api/v1"
-INVENTORY_SERVICE = "http://localhost:8005/api/v1"
+PRODUCT_SERVICE = os.getenv("PRODUCT_SERVICE_URL", "http://product-service:8002") + "/api/v1"
+INVENTORY_SERVICE = os.getenv("INVENTORY_SERVICE_URL", "http://inventory-service:8005") + "/api/v1"
 
 
 async def get_product_and_inventory(product_id: str):

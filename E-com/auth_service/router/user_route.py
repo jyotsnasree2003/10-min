@@ -19,10 +19,10 @@ import httpx
 from database.redisd_setup import redis_client
 import json
 
+load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
-load_dotenv()
 router = APIRouter()
 
 @router.post('/signup')

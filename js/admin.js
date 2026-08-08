@@ -216,7 +216,7 @@ const AdminManager = {
         <button class="btn btn-primary" onclick="AdminManager.openAddProductModal()">+ Add New Product to DB</button>
       </div>
 
-      ${products.length === 0 ? `<p style="color: var(--medium-gray);">No products found in Product Service database.</p>` : `
+      ${products.length === 0 ? `<p style="color: var(--medium-gray);">No products found.</p>` : `
         <div class="admin-table-wrapper">
           <table class="admin-table">
             <thead>
@@ -271,8 +271,8 @@ const AdminManager = {
     if (!modal || !modalContent) return;
 
     modalContent.innerHTML = `
-      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add New Product (POST /api/v1/products)</h3>
-      <p style="font-size: 0.85rem; color: var(--medium-gray); margin-bottom: 1.25rem;">Inserts a new product into Product Service PostgreSQL/SQLite database.</p>
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add New Product</h3>
+      <p style="font-size: 0.85rem; color: var(--medium-gray); margin-bottom: 1.25rem;">Create a new product catalog entry.</p>
 
       <form id="admin-add-product-form">
         <div class="form-group">
@@ -351,7 +351,7 @@ const AdminManager = {
 
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.innerText = 'Inserting into Product Service Database...';
+        submitBtn.innerText = 'Creating Product...';
 
         try {
           const newProduct = await API.adminCreateProduct({
@@ -376,7 +376,7 @@ const AdminManager = {
           modal.classList.remove('active');
           this.switchTab('products');
         } catch (err) {
-          Utils.showToast(`Product Service Error: ${err.message}`, 'error');
+          Utils.showToast(`Product Error: ${err.message}`, 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.innerText = 'Save Product to Database';
@@ -413,7 +413,7 @@ const AdminManager = {
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
         <div style="background: var(--light-gray); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <h4 style="font-weight: 800; margin-bottom: 0.5rem; color: var(--dark);">➕ Create Category (POST /categories)</h4>
+          <h4 style="font-weight: 800; margin-bottom: 0.5rem; color: var(--dark);">➕ Create Category</h4>
           <form id="inline-create-category-form">
             <div class="form-group" style="margin-bottom: 0.75rem;">
               <label class="form-label" style="font-size: 0.8rem;">Category Name *</label>
@@ -425,18 +425,18 @@ const AdminManager = {
               <input type="file" id="inline-c-image-file" class="form-control" accept="image/*" />
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block btn-sm">Upload Photo & Insert Category into DB</button>
+            <button type="submit" class="btn btn-primary btn-block btn-sm">Upload Photo & Create Category</button>
           </form>
         </div>
 
         <div style="background: var(--light-gray); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <h4 style="font-weight: 800; margin-bottom: 0.5rem; color: var(--dark);">➕ Create Brand (POST /brands)</h4>
+          <h4 style="font-weight: 800; margin-bottom: 0.5rem; color: var(--dark);">➕ Create Brand</h4>
           <form id="inline-create-brand-form">
             <div class="form-group" style="margin-bottom: 0.75rem;">
               <label class="form-label" style="font-size: 0.8rem;">Brand Name *</label>
               <input type="text" id="inline-b-name" class="form-control" placeholder="Brand Name (e.g. Mother Dairy)" required />
             </div>
-            <button type="submit" class="btn btn-primary btn-block btn-sm">Insert Brand into DB</button>
+            <button type="submit" class="btn btn-primary btn-block btn-sm">Create Brand</button>
           </form>
         </div>
       </div>
@@ -542,9 +542,10 @@ const AdminManager = {
     container.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h2 style="font-weight: 800; font-size: 1.5rem; margin: 0;">🏬 Darkstore Warehouses (${this.cachedWarehouses.length})</h2>
+        <button class="btn btn-primary" onclick="AdminManager.openAddWarehouseModal()">+ Add New Warehouse</button>
       </div>
 
-      ${this.cachedWarehouses.length === 0 ? `<p style="color: var(--medium-gray);">No warehouses found in Warehouse Service database.</p>` : `
+      ${this.cachedWarehouses.length === 0 ? `<p style="color: var(--medium-gray);">No warehouses found.</p>` : `
         <div class="admin-table-wrapper">
           <table class="admin-table">
             <thead>
@@ -577,6 +578,157 @@ const AdminManager = {
         </div>
       `}
     `;
+  },
+
+  async openAddWarehouseModal() {
+    let users = [];
+    try {
+      users = await API.adminGetUsers();
+    } catch (e) {
+      console.warn("Failed to fetch users", e);
+    }
+    const managers = users.filter(u => String(u.role).toLowerCase() === 'inventory manager');
+
+    const modal = document.getElementById('order-detail-modal');
+    const modalContent = document.getElementById('order-detail-modal-body');
+    if (!modal || !modalContent) return;
+
+    modalContent.innerHTML = `
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add New Warehouse</h3>
+      <p style="font-size: 0.85rem; color: var(--medium-gray); margin-bottom: 1.25rem;">Create a new darkstore warehouse serving a specific geofenced area.</p>
+
+      <form id="admin-add-warehouse-form">
+        <div class="form-group">
+          <label class="form-label">Warehouse Name *</label>
+          <input type="text" id="admin-wh-name" class="form-control" placeholder="e.g. Hyderabad Hitech City Hub" required />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Capacity (units) *</label>
+            <input type="number" id="admin-wh-capacity" class="form-control" min="1" placeholder="e.g. 5000" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Email *</label>
+            <input type="email" id="admin-wh-email" class="form-control" placeholder="e.g. hitech@quicko.com" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Opening Time *</label>
+            <input type="time" id="admin-wh-opening" class="form-control" value="06:00" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Closing Time *</label>
+            <input type="time" id="admin-wh-closing" class="form-control" value="23:00" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Latitude *</label>
+            <input type="number" id="admin-wh-lat" class="form-control" step="any" placeholder="e.g. 17.448" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Longitude *</label>
+            <input type="number" id="admin-wh-lng" class="form-control" step="any" placeholder="e.g. 78.374" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assign Manager *</label>
+          <select id="admin-wh-manager" class="form-control" required style="width: 100%; height: 38px; padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <option value="">-- Select Inventory Manager --</option>
+            ${managers.map(m => `<option value="${m.id}">${m.name} (${m.email})</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Geofence Coordinates (JSON array of [lat, lng] pairs) *</label>
+          <textarea id="admin-wh-geofence" class="form-control" rows="4" style="font-family: monospace; font-size: 0.82rem; width: 100%;" required placeholder="e.g. [[17.43,78.33],[17.43,78.37],[17.47,78.37],[17.47,78.33]]"></textarea>
+          <small style="color: var(--medium-gray); font-size: 0.76rem; display: block; margin-top: 4px;">Must contain at least 3 points forming a closed loop.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem; margin-top: 1rem;">Save Warehouse Record</button>
+      </form>
+    `;
+
+    modal.classList.add('active');
+
+    // Add listeners to auto-generate default geofence when lat/lng are entered
+    const latInput = document.getElementById('admin-wh-lat');
+    const lngInput = document.getElementById('admin-wh-lng');
+    const geofenceText = document.getElementById('admin-wh-geofence');
+
+    const updateGeofence = () => {
+      const lat = parseFloat(latInput.value);
+      const lng = parseFloat(lngInput.value);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const d = 0.015; // default geofence offset (~1.5km radius square)
+        const defaultGeofence = [
+          [lat - d, lng - d],
+          [lat - d, lng + d],
+          [lat + d, lng + d],
+          [lat + d, lng - d]
+        ];
+        geofenceText.value = JSON.stringify(defaultGeofence);
+      }
+    };
+
+    latInput.addEventListener('input', updateGeofence);
+    lngInput.addEventListener('input', updateGeofence);
+
+    const form = document.getElementById('admin-add-warehouse-form');
+    if (form) {
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('admin-wh-name').value.trim();
+        const capacity = parseInt(document.getElementById('admin-wh-capacity').value || 0);
+        const contact_email = document.getElementById('admin-wh-email').value.trim();
+        const opening_time = document.getElementById('admin-wh-opening').value;
+        const closing_time = document.getElementById('admin-wh-closing').value;
+        const lat = parseFloat(document.getElementById('admin-wh-lat').value);
+        const lng = parseFloat(document.getElementById('admin-wh-lng').value);
+        const manager_id = document.getElementById('admin-wh-manager').value;
+        const geofenceStr = document.getElementById('admin-wh-geofence').value.trim();
+
+        let geofence;
+        try {
+          geofence = JSON.parse(geofenceStr);
+          if (!Array.isArray(geofence) || geofence.length < 3) {
+            throw new Error();
+          }
+          for (let p of geofence) {
+            if (!Array.isArray(p) || p.length !== 2 || typeof p[0] !== 'number' || typeof p[1] !== 'number') {
+              throw new Error();
+            }
+          }
+        } catch (err) {
+          Utils.showToast('Invalid geofence format! Must be JSON list of [lat, lng] pairs (at least 3 points).', 'error');
+          return;
+        }
+
+        try {
+          await API.adminCreateWarehouse({
+            name,
+            lat,
+            lng,
+            geofence,
+            capacity,
+            opening_time,
+            closing_time,
+            contact_email,
+            manager_id
+          });
+          Utils.showToast(`Warehouse "${name}" created and synced successfully!`, 'success');
+          modal.classList.remove('active');
+          this.switchTab('warehouses');
+        } catch (err) {
+          Utils.showToast(`Warehouse Creation Error: ${err.message}`, 'error');
+        }
+      };
+    }
   },
 
   async showWarehouseDetails(warehouseId) {
@@ -632,7 +784,7 @@ const AdminManager = {
           ${inventoryItems.length === 0 ? `
             <div style="text-align: center; padding: 2rem; color: var(--medium-gray);">
               <div style="font-size: 3rem; margin-bottom: 0.5rem;">📦</div>
-              <p style="font-weight: 600;">No products found in the Inventory Service database for this warehouse.</p>
+              <p style="font-weight: 600;">No products found in stock for this warehouse.</p>
             </div>
           ` : `
             <div class="admin-table-wrapper" style="margin-top: 0; max-height: 250px;">
@@ -1263,10 +1415,10 @@ const AdminManager = {
     container.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h2 style="font-weight: 800; font-size: 1.5rem; margin: 0;">📦 Stock Inventory (${inventory.length})</h2>
-        <button class="btn btn-primary" onclick="AdminManager.openAddInventoryModal()">+ Assign Stock (POST /inventory)</button>
+        <button class="btn btn-primary" onclick="AdminManager.openAddInventoryModal()">+ Assign Stock</button>
       </div>
 
-      ${inventory.length === 0 ? `<p style="color: var(--medium-gray);">No stock records found in Inventory Service database.</p>` : `
+      ${inventory.length === 0 ? `<p style="color: var(--medium-gray);">No stock records found.</p>` : `
         <div class="admin-table-wrapper">
           <table class="admin-table">
             <thead>
@@ -1314,7 +1466,7 @@ const AdminManager = {
     if (!modal || !modalContent) return;
 
     modalContent.innerHTML = `
-      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Assign Stock to Warehouse (POST /api/v1/inventory)</h3>
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Assign Stock to Warehouse</h3>
       <p style="font-size: 0.85rem; color: var(--medium-gray); margin-bottom: 1.25rem;">Type or paste the exact Product ID and Warehouse ID below.</p>
 
       <form id="admin-add-inventory-form">
@@ -1362,11 +1514,11 @@ const AdminManager = {
 
         try {
           await API.adminCreateInventory({ product_id, warehouse_id, quantity });
-          Utils.showToast('Stock assigned to warehouse in Inventory Service DB!', 'success');
+          Utils.showToast('Stock assigned to warehouse successfully!', 'success');
           modal.classList.remove('active');
           this.switchTab('inventory');
         } catch (err) {
-          Utils.showToast(`Inventory Service Error: ${err.message}`, 'error');
+          Utils.showToast(`Inventory Error: ${err.message}`, 'error');
         }
       };
     }
@@ -1389,7 +1541,7 @@ const AdminManager = {
     if (!modal || !modalContent) return;
 
     modalContent.innerHTML = `
-      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add Category (POST /api/v1/categories)</h3>
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add Category</h3>
       <form id="admin-add-category-form">
         <div class="form-group">
           <label class="form-label">Category Name *</label>
@@ -1438,7 +1590,7 @@ const AdminManager = {
     if (!modal || !modalContent) return;
 
     modalContent.innerHTML = `
-      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add Brand (POST /api/v1/brands)</h3>
+      <h3 style="font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Add Brand</h3>
       <form id="admin-add-brand-form">
         <div class="form-group">
           <label class="form-label">Brand Name *</label>

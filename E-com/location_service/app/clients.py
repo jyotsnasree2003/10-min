@@ -4,7 +4,7 @@ import httpx
 
 # location_service now only needs to know where inventory_service
 # lives - product_service enrichment moved into inventory_service.
-INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://inventory-db:8005")
+INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://inventory-service:8005")
 
 
 def get_inventory_for_warehouse(warehouse_id: str) -> list[dict]:

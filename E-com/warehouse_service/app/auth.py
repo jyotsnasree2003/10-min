@@ -12,8 +12,8 @@ load_dotenv()
 # ------------------------------------------------------------------
 # JWT Configuration
 # ------------------------------------------------------------------
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY") or os.getenv("SECRET_KEY")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM") or os.getenv("ALGORITHM") or "HS256"
 JWT_AUDIENCE = os.getenv("JWT_AUDIENCE")
 JWT_ISSUER = os.getenv("JWT_ISSUER")
 

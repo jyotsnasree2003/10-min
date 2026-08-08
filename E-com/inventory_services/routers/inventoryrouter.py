@@ -160,7 +160,7 @@ async def create_inventory(
     return new_inventory
 
 
-@router.get("/", response_model=list[InventoryResponse])
+@router.get("", response_model=list[InventoryResponse])
 def get_all_inventory(db: Session = Depends(get_db)):
     return db.query(Inventory).all()
 
