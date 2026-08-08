@@ -1,15 +1,15 @@
 /* QuickO Microservices API Client - Complete Inventory Service CRUD */
 
 const API_CONFIG = {
-  AUTH_SERVICE: 'http://localhost:8000/api/v1/user',
-  ADMIN_SERVICE: 'http://localhost:8000/api/v1/admin',
-  PRODUCT_SERVICE: 'http://localhost:8002/api/v1',
-  LOCATION_SERVICE: 'http://localhost:8003/api/v1',
-  WAREHOUSE_SERVICE: 'http://localhost:8004/api/v1',
-  INVENTORY_SERVICE: 'http://localhost:8005/api/v1',
-  CART_SERVICE: 'http://localhost:8006/api/v1',
-  ORDER_SERVICE: 'http://localhost:8007/api/v1',
-  NOTIFICATION_SERVICE: 'http://localhost:8008/api/v1'
+  AUTH_SERVICE: 'http://localhost/api/auth/api/v1/user',
+  ADMIN_SERVICE: 'http://localhost/api/auth/api/v1/admin',
+  PRODUCT_SERVICE: 'http://localhost/api/products/api/v1',
+  LOCATION_SERVICE: 'http://localhost/api/location/api/v1',
+  WAREHOUSE_SERVICE: 'http://localhost/api/warehouses/api/v1',
+  INVENTORY_SERVICE: 'http://localhost/api/inventory/api/v1',
+  CART_SERVICE: 'http://localhost/api/cart/api/v1',
+  ORDER_SERVICE: 'http://localhost/api/orders/api/v1',
+  NOTIFICATION_SERVICE: 'http://localhost/api/notifications/api/v1'
 };
 
 let isRefreshing = false;

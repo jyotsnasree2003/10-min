@@ -436,6 +436,10 @@ const AdminManager = {
               <label class="form-label" style="font-size: 0.8rem;">Brand Name *</label>
               <input type="text" id="inline-b-name" class="form-control" placeholder="Brand Name (e.g. Mother Dairy)" required />
             </div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label class="form-label" style="font-size: 0.8rem;">Brand Description</label>
+              <textarea id="inline-b-desc" class="form-control" rows="2" placeholder="e.g. Premium dairy products and ice creams"></textarea>
+            </div>
             <button type="submit" class="btn btn-primary btn-block btn-sm">Create Brand</button>
           </form>
         </div>
@@ -468,14 +472,15 @@ const AdminManager = {
           <h3 style="font-weight: 800; margin-bottom: 1rem;">Brands Table (${brands.length})</h3>
           <div class="admin-table-wrapper">
             <table class="admin-table">
-              <thead><tr><th>ID (UUID)</th><th>Brand Name</th><th>Action</th></tr></thead>
+              <thead><tr><th>ID (UUID)</th><th>Brand Name</th><th>Description</th><th>Action</th></tr></thead>
               <tbody>
-                ${brands.length === 0 ? '<tr><td colspan="3">No brands found in database.</td></tr>' : brands.map(b => `
+                ${brands.length === 0 ? '<tr><td colspan="4">No brands found in database.</td></tr>' : brands.map(b => `
                   <tr onclick="event.target.tagName !== 'BUTTON' && event.target.tagName !== 'SMALL' && AdminManager.showBrandProducts('${b.id}', '${b.name.replace(/'/g, "\\'")}')" style="cursor: pointer;" title="Click to view related products">
                     <td><small style="user-select: all; cursor: pointer; background: var(--light-gray); padding: 2px 4px; border-radius: 4px;" title="Click to copy">${b.id}</small></td>
                     <td><a href="javascript:void(0)" style="color: var(--primary); font-weight: 700; text-decoration: underline;">${b.name}</a></td>
+                    <td><span style="font-size: 0.85rem; color: var(--dark-gray);">${b.description || '<span style="color: var(--medium-gray);">No description</span>'}</span></td>
                     <td>
-                      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); AdminManager.openEditBrandModal('${b.id}', '${b.name.replace(/'/g, "\\'")}')" style="margin-right: 5px;">Edit</button>
+                      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); AdminManager.openEditBrandModal('${b.id}', '${b.name.replace(/'/g, "\\'")}', '${(b.description || '').replace(/'/g, "\\'")}')" style="margin-right: 5px;">Edit</button>
                       <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); AdminManager.deleteBrand('${b.id}')" style="color: var(--status-cancelled); border-color: var(--status-cancelled);">Delete</button>
                     </td>
                   </tr>
@@ -518,8 +523,9 @@ const AdminManager = {
       brandForm.onsubmit = async (e) => {
         e.preventDefault();
         const name = document.getElementById('inline-b-name').value.trim();
+        const description = document.getElementById('inline-b-desc').value.trim();
         try {
-          await API.adminCreateBrand({ name });
+          await API.adminCreateBrand({ name, description });
           Utils.showToast(`Brand "${name}" created in database!`, 'success');
           this.switchTab('categories');
           if (window.HomeManager) window.HomeManager.loadCategoriesAndBrands();
@@ -1322,7 +1328,7 @@ const AdminManager = {
     };
   },
 
-  openEditBrandModal(brandId, brandName) {
+  openEditBrandModal(brandId, brandName, brandDesc = '') {
     const modal = document.getElementById('order-detail-modal');
     const modalContent = document.getElementById('order-detail-modal-body');
     if (!modal || !modalContent) return;
@@ -1335,6 +1341,10 @@ const AdminManager = {
         <div class="form-group">
           <label class="form-label">Brand Name *</label>
           <input type="text" id="admin-edit-b-name" class="form-control" value="${brandName}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Brand Description</label>
+          <textarea id="admin-edit-b-desc" class="form-control" rows="3" placeholder="e.g. Premium quality food and beverage products">${brandDesc}</textarea>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -1354,9 +1364,10 @@ const AdminManager = {
       saveButton.innerText = 'Saving...';
 
       const name = document.getElementById('admin-edit-b-name').value.trim();
+      const description = document.getElementById('admin-edit-b-desc').value.trim();
 
       try {
-        await API.adminUpdateBrand(brandId, { name });
+        await API.adminUpdateBrand(brandId, { name, description });
         Utils.showToast(`Brand updated successfully!`, 'success');
         modal.classList.remove('active');
         this.switchTab('categories');
@@ -1596,6 +1607,10 @@ const AdminManager = {
           <label class="form-label">Brand Name *</label>
           <input type="text" id="admin-b-name" class="form-control" placeholder="e.g. Nestle" required />
         </div>
+        <div class="form-group">
+          <label class="form-label">Brand Description</label>
+          <textarea id="admin-b-desc" class="form-control" rows="3" placeholder="e.g. Premium quality food and beverage products"></textarea>
+        </div>
         <button type="submit" class="btn btn-primary btn-block">Add Brand to Database</button>
       </form>
     `;
@@ -1607,8 +1622,9 @@ const AdminManager = {
       form.onsubmit = async (e) => {
         e.preventDefault();
         const name = document.getElementById('admin-b-name').value.trim();
+        const description = document.getElementById('admin-b-desc').value.trim();
         try {
-          await API.adminCreateBrand({ name });
+          await API.adminCreateBrand({ name, description });
           Utils.showToast(`Brand "${name}" created in database!`, 'success');
           modal.classList.remove('active');
           this.switchTab('categories');

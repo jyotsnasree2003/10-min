@@ -127,7 +127,7 @@ const Auth = {
 
     if (userBtn) {
       if (this.isLoggedIn()) {
-        const roleBadge = this.isAdmin() ? ' 👑' : '';
+        const roleBadge = '';
         userBtn.innerHTML = `👤 <span>${user.name || 'Account'}${roleBadge}</span>`;
         userBtn.onclick = () => { window.location.hash = '#profile'; };
       } else {
