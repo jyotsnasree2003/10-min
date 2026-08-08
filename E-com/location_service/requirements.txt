@@ -1,12 +1,10 @@
 fastapi
 uvicorn
+httpx
 sqlalchemy
 psycopg2-binary
-python-dotenv
-python-jose
-passlib[bcrypt]
-python-multipart
-pydantic
-bcrypt
-httpx
 shapely
+geohash2
+python-dotenv
+pydantic
+python-multipart

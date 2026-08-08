@@ -1,19 +1,21 @@
 import os
 from dotenv import load_dotenv
-load_dotenv()
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-db = os.getenv("DB_NAME")
+load_dotenv()
+
 # PostgreSQL Connection URL
-DATABASE_URL = (
-    f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    user = os.getenv("DB_USER", "postgres")
+    password = os.getenv("DB_PASSWORD", "123456")
+    host = os.getenv("DB_HOST", "location-db")
+    port = os.getenv("DB_PORT", "5432")
+    db = os.getenv("DB_NAME", "location_db")
+    DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+
 
 engine = create_engine(DATABASE_URL)
 

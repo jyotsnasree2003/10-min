@@ -1,10 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from sqlalchemy import text
+
 from app.database import Base, engine
 from app.routers import location, warehouses, internal,home
 
 Base.metadata.create_all(bind=engine)
+
+# Auto-migration: Ensure geohash_cells exists in warehouses table
+with engine.connect() as conn:
+    try:
+        conn.execute(text("ALTER TABLE warehouses ADD COLUMN IF NOT EXISTS geohash_cells JSON;"))
+        conn.commit()
+    except Exception:
+        try:
+            conn.execute(text("ALTER TABLE warehouses ADD COLUMN geohash_cells JSON;"))
+            conn.commit()
+        except Exception:
+            pass
+
 
 app = FastAPI(title="Location Service", version="0.1.0")
 
