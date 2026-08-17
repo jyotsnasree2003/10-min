@@ -1,77 +1,86 @@
 # Location Service
 
-Resolves a user's lat/lng into the warehouse (dark store) that serves them,
-by checking which warehouse's geofence polygon contains that point.
+The **Location Service** determines whether a customer's location (specified by latitude and longitude coordinates) is serviceable and maps it to the specific warehouse (dark store) that serves them. It uses geofencing check algorithms to resolve coordinates instantly.
 
+## Features
 
+- **Geofence Matching**: Runs a polygon boundary containment check using `shapely` to match user locations to dark store boundaries.
+- **Two-Phase Resolution Optimization**:
+  - **Phase 1 (Geohash Filter)**: Generates user geohash cells and intersects them with precalculated warehouse geohash boundaries to downfilter candidates rapidly.
+  - **Phase 2 (Precise Containment)**: Runs precise polygon containment checks solely on the downfiltered candidates, avoiding heavy calculations on non-adjacent stores.
+- **Auto-Sync Webhook**: Exposes an internal API endpoint triggered by the Warehouse Service to update local warehouses and precalculate geohash boundaries.
+
+## Directory Structure
+
+```text
+location_service/
+├── app/
+│   ├── routers/
+│   │   ├── home.py           # Landing and standard service status route
+│   │   ├── internal.py       # Webhook sync endpoints for the Warehouse service
+│   │   ├── location.py       # Latitude/Longitude resolution engine
+│   │   └── warehouses.py     # Local warehouse metadata views
+│   ├── clients.py            # HTTP client utilities
+│   ├── database.py           # DB engine, session provider, and base
+│   ├── geofence.py           # Polygon intersection logic (Shapely)
+│   ├── geohash_utils.py      # Geohashing computation helpers (geohash2)
+│   ├── main.py               # FastAPI config, middleware, and auto-migration script
+│   ├── models.py             # SQLite/PostgreSQL warehouse model representation
+│   └── schemas.py            # Pydantic payloads for requests/responses
+├── Dockerfile                # Container definition
+├── requirements.txt          # Python dependencies
+└── README.md                 # This documentation file
+```
+
+## Running the Service
+
+### Using Docker (Compose)
+From the root `E-com` folder:
 ```bash
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-
-
-uvicorn app.main:app --reload --port 8003
+docker-compose up -d location-db location-service
 ```
 
-## Example: create a warehouse with a geofence
+### Local Setup (Manual)
+1. **Prepare Virtual Environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-The `geofence` field is a list of `[lat, lng]` points tracing the boundary
-of the area this warehouse serves (minimum 3 points; the polygon is
-auto-closed).
+2. **Database Setup**:
+   Ensure PostgreSQL is running with a database named `location_db`.
 
-```bash
-curl -X POST http://localhost:8003/warehouses/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Gachibowli Dark Store",
-    "lat": 17.4442,
-    "lng": 78.3489,
-    "geofence": [
-      [17.4300, 78.3350],
-      [17.4300, 78.3650],
-      [17.4600, 78.3650],
-      [17.4600, 78.3350]
-    ]
-  }'
-```
+3. **Configure Environment Variables**:
+   Create a `.env` file in this directory:
+   ```env
+   DATABASE_URL=postgresql://postgres:123456@localhost:5434/location_db
+   ```
 
-## Example: resolve a user's location
+4. **Start Application**:
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
+   ```
 
-```bash
-curl -X POST http://localhost:8003/location/resolve \
-  -H "Content-Type: application/json" \
-  -d '{"lat": 17.4442, "lng": 78.3489}'
-```
+---
 
-Point inside the polygon above → response:
-```json
-{"serviceable": true, "warehouse_id": "...", "warehouse_name": "Gachibowli Dark Store"}
-```
+## API Endpoints
 
-Point outside every warehouse's polygon → response:
-```json
-{"serviceable": false, "warehouse_id": null, "warehouse_name": null}
-```
+### Location Resolution Endpoints (`/api/v1/location`)
 
-## How other services use this
+| Method | Endpoint | Description | Payload Schema |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/resolve` | Resolves a `(lat, lng)` point into a servicing dark store. | `ResolveRequest` |
 
-Every other microservice (catalog, inventory, order) should call
-`POST /location/resolve` once when the user opens the app or changes
-their address, cache the returned `warehouse_id` for that session, and
-pass it along on every subsequent inventory/catalog/order call. This is
-what makes stock and pricing "location aware" without duplicating the
-product catalog per city.
+### Internal Synchronization Endpoints (`/api/v1/internal`)
 
-## Roadmap for this service
+| Method | Endpoint | Description | Payload Schema |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/warehouse-created` | Webhook triggered by Warehouse Service to sync/create a local store. | `WarehouseCreate` |
 
-- [ ] Swap `geofence` JSON column for a PostGIS `Geometry(POLYGON)` column
-      and do the containment check in SQL (`ST_Contains`) instead of
-      Python/Shapely — much faster once you have hundreds of warehouses.
-- [ ] Add Alembic migrations instead of `create_all`.
-- [ ] Cache `/location/resolve` results in Redis, keyed by rounded
-      lat/lng, since geofence checks don't need to run on every request.
-- [ ] Add an admin-only auth dependency on the `/warehouses` write
-      endpoints once the Auth service exists.
-- [ ] Add a pincode fallback table for areas where you don't have a
-      precise polygon yet.
+### Warehouse View Endpoints (`/api/v1/warehouses`)
+
+| Method | Endpoint | Description | Payload Schema |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | Returns all synchronized warehouses. | None |
+| `GET` | `/{warehouse_id}` | Retrieves a single synchronized warehouse. | None |
